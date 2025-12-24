@@ -1,0 +1,109 @@
+version: "3.9"
+
+services:
+  # Backend Node.js Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: musicmood-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://musicmood:musicmood@postgres:5432/musicmood
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - musicmood-network
+    volumes:
+      - ./logs:/app/logs
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: musicmood-postgres
+    environment:
+      POSTGRES_USER: musicmood
+      POSTGRES_PASSWORD: musicmood
+      POSTGRES_DB: musicmood
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U musicmood" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - musicmood-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: musicmood-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - musicmood-network
+
+  # Redis Commander (Optional - for debugging)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: musicmood-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - musicmood-network
+    profiles:
+      - debug
+
+  # pgAdmin (Optional - for debugging)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: musicmood-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@musicmood.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - musicmood-network
+    profiles:
+      - debug
+
+networks:
+  musicmood-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Hava durumuna göre size özel müzik önerileri alın. Şehrinizi girin, ruh halinize uygun playlistleri keşfedin.">
+    <title>MusicMood - Hava Durumuna Göre Müzik Önerileri</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18V5L21 3V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2" />
+                        <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    <h1>MusicMood</h1>
+                </div>
+
+                <!-- Auth Section -->
+                <div class="auth-section">
+                    <!-- Login Button (Google Sign-In) -->
+                    <div id="loginBtn" class="login-btn-container"></div>
+
+                    <!-- User Profile (Hidden by default) -->
+                    <div id="userProfile" class="user-profile hidden">
+                        <img id="userAvatar" src="" alt="User Avatar" class="user-avatar">
+                        <span id="userName" class="user-name"></span>
+                        <button id="logoutBtn" class="logout-btn" title="Çıkış Yap">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <p class="tagline">Hava durumuna göre müzik keşfet</p>
+        </header>
+
+        <!-- Favorites Section (Hidden by default) -->
+        <section id="favoritesSection" class="favorites-section hidden">
+            <div class="favorites-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Favori Şehirlerim
+                </h3>
+            </div>
+            <div id="favoritesList" class="favorites-list"></div>
+        </section>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <div class="input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    <input type="text" id="cityInput" placeholder="Şehir adı girin (örn: Istanbul, Ankara, Izmir)"
+                        autocomplete="off">
+                </div>
+                <button id="searchBtn" class="search-btn">
+                    <span class="btn-text">Ara</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message hidden">
+                <svg class="error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                    <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <span id="errorText"></span>
+            </div>
+        </section>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+            <p>Hava durumu kontrol ediliyor...</p>
+        </div>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section hidden">
+            <!-- Weather Info -->
+            <div class="weather-card">
+                <div class="weather-header">
+                    <div class="weather-info">
+                        <h2 id="cityName"></h2>
+                        <p id="weatherDescription"></p>
+                    </div>
+                    <div class="weather-icon-container">
+                        <img id="weatherIcon" src="" alt="Weather icon">
+                    </div>
+                </div>
+                <div class="weather-details">
+                    <div class="detail-item">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2V12M12 12L8 8M12 12L16 8" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                            <path d="M20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12" stroke="currentColor"
+                                stroke-width="2" />
+                        </svg>
+                        <span id="temperature"></span>
+                    </div>
+                    <div class="detail-item">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 3V7M12 17V21M5.64 5.64L8.46 8.46M15.54 15.54L18.36 18.36M3 12H7M17 12H21M5.64 18.36L8.46 15.54M15.54 8.46L18.36 5.64"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <span id="humidity"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mood Section -->
+            <div class="mood-card">
+                <div class="mood-header">
+                    <h3>Ruh Haliniz</h3>
+                    <div class="mood-actions">
+                        <div class="mood-badge" id="moodBadge"></div>
+                        <button id="addFavoriteBtn" class="add-favorite-btn" title="Favorilere Ekle">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <p class="mood-description" id="moodDescription"></p>
+            </div>
+
+            <!-- Playlist Section -->
+            <div class="playlist-section">
+                <h3 class="playlist-title">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18V5L21 3V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2" />
+                        <circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    Sizin İçin Seçtiklerimiz
+                </h3>
+                <div id="playlistContainer" class="playlist-container"></div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Hava durumu verileri <a href="https://openweathermap.org/" target="_blank"
+                    rel="noopener">OpenWeatherMap</a> tarafından sağlanmaktadır</p>
+        </footer>
+    </div>
+
+    <!-- Configuration (must be first) -->
+    <script src="config.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="playlists.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script src="spotify.js"></script>
+</body>
+
+</html>
