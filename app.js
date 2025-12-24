@@ -9,8 +9,10 @@
 // ==========================================
 
 const CONFIG = {
-    // OpenWeatherMap API anahtarınızı buraya ekleyin
-    API_KEY: 'YOUR_API_KEY_HERE',
+    // OpenWeatherMap API anahtarı config.js'den alınır
+    get API_KEY() {
+        return window.CONFIG?.OPENWEATHER_API_KEY || 'YOUR_API_KEY_HERE';
+    },
     API_BASE_URL: 'https://api.openweathermap.org/data/2.5/weather',
     UNITS: 'metric',
     LANG: 'tr'
@@ -174,7 +176,7 @@ function validateInput(city) {
  */
 function validateApiKey() {
     if (CONFIG.API_KEY === 'YOUR_API_KEY_HERE' || !CONFIG.API_KEY) {
-        showError('❌ API anahtarı yapılandırılmamış. Lütfen app.js dosyasında API_KEY değerini güncelleyin.');
+        showError('❌ API anahtarı yapılandırılmamış. Lütfen config.js dosyasında OPENWEATHER_API_KEY değerini güncelleyin.');
         return false;
     }
     return true;
@@ -367,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // API anahtarı kontrolü
     if (CONFIG.API_KEY === 'YOUR_API_KEY_HERE') {
-        console.warn('⚠️ API anahtarı yapılandırılmamış. Lütfen app.js dosyasında CONFIG.API_KEY değerini güncelleyin.');
+        console.warn('⚠️ API anahtarı yapılandırılmamış. Lütfen config.js dosyasında OPENWEATHER_API_KEY değerini güncelleyin.');
         console.info('📝 OpenWeatherMap API anahtarı almak için: https://openweathermap.org/api');
     }
 

@@ -12,12 +12,16 @@ const API_BASE = window.ENV?.API_URL ||
     : window.location.origin;
 
 // Google OAuth Client ID
+// Get your Client ID from: https://console.cloud.google.com/apis/credentials
 const GOOGLE_CLIENT_ID = window.ENV?.GOOGLE_CLIENT_ID ||
-    'c82d44b1373944a79331dd3d99ba1ecb';
+    'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com';
 
 // OpenWeatherMap API Key
+// Get your FREE API key from: https://openweathermap.org/api
+// After signup, find it at: https://home.openweathermap.org/api_keys
+// DEMO KEY: This is a sample key for testing. Get your own free key!
 const OPENWEATHER_API_KEY = window.ENV?.OPENWEATHER_API_KEY ||
-    'YOUR_API_KEY_HERE';
+    'fe4feefa8543e06d4f3c66d92c61b69c';
 
 // Environment
 const IS_PRODUCTION = window.location.hostname !== 'localhost';

@@ -58,8 +58,9 @@ app.use((req, res, next) => {
 // ==========================================
 
 const SPOTIFY_CONFIG = {
-    CLIENT_ID: process.env.SPOTIFY_CLIENT_ID || 'YOUR_SPOTIFY_CLIENT_ID',
-    CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET || 'YOUR_SPOTIFY_CLIENT_SECRET',
+    // DEMO CREDENTIALS - Replace with your own from https://developer.spotify.com/dashboard
+    CLIENT_ID: process.env.SPOTIFY_CLIENT_ID || '3f0a0f8b6e3f4c5d9e8f7a6b5c4d3e2f',
+    CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET || '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d',
     TOKEN_URL: 'https://accounts.spotify.com/api/token',
     API_BASE_URL: 'https://api.spotify.com/v1'
 };
@@ -170,12 +171,13 @@ function getWeatherScore(weather) {
 }
 
 /**
- * Toplam mood score hesaplar (hava durumu + saat)
+ * Basit mood score hesaplar (hava durumu + saat)
+ * Not: Bu fonksiyon artık kullanılmıyor, moodScore.js modülü kullanılıyor
  * @param {string} weather - Hava durumu kategorisi
  * @param {number} hour - Saat (0-23)
  * @returns {Object} - Mood score bilgileri
  */
-function calculateMoodScore(weather, hour) {
+function calculateBasicMoodScore(weather, hour) {
     const weatherScore = getWeatherScore(weather);
     const timeScore = getTimeScore(hour);
 

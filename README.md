@@ -77,10 +77,11 @@ SPOTIFY_CLIENT_SECRET=your_client_secret_here
 2. Ücretsiz API key alın
 3. `app.js` dosyasında `CONFIG.API_KEY` güncelleyin
 
-#### Google OAuth (Opsiyonel)
+#### Google OAuth (Detaylı: [GOOGLE_AUTH_SETUP.md](GOOGLE_AUTH_SETUP.md))
 1. [Google Cloud Console](https://console.cloud.google.com/)
 2. OAuth 2.0 Client ID oluşturun
-3. `auth.js` dosyasında `AUTH_CONFIG.CLIENT_ID` güncelleyin
+3. `config.js` dosyasında `GOOGLE_CLIENT_ID` güncelleyin
+4. **Önemli**: Client ID formatı: `xxxxx.apps.googleusercontent.com`
 
 ### 3️⃣ Çalıştırın
 
@@ -226,12 +227,14 @@ npm start
 - [SPOTIFY_SETUP.md](SPOTIFY_SETUP.md) rehberini takip edin
 
 ### Google Sign-In Çalışmıyor
-- Client ID'nin doğru olduğundan emin olun
+- Client ID'nin doğru formatta olduğundan emin olun (`.apps.googleusercontent.com`)
 - Authorized JavaScript origins'i kontrol edin
 - Tarayıcı console'unda hataları kontrol edin
+- Detaylı kurulum için: [GOOGLE_AUTH_SETUP.md](GOOGLE_AUTH_SETUP.md)
 
 ## 📚 Dokümantasyon
 
+- **[GOOGLE_AUTH_SETUP.md](GOOGLE_AUTH_SETUP.md)** - Detaylı Google OAuth kurulum rehberi
 - **[SPOTIFY_SETUP.md](SPOTIFY_SETUP.md)** - Detaylı Spotify kurulum rehberi
 - **[API_SETUP.md](API_SETUP.md)** - OpenWeatherMap kurulum rehberi
 - **[README.md](README.md)** - Genel bakış (bu dosya)
@@ -312,8 +315,6 @@ npm audit
 5. **Favori Limit**: Maksimum 10 şehir
 
 ---
-
-**Client ID (Google)**: `c82d44b1373944a79331dd3d99ba1ecb`
 
 **Keyifli müzik keşifleri!** 🎵✨
 

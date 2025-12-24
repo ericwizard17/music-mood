@@ -10,7 +10,10 @@
 
 const AUTH_CONFIG = {
     // Google Cloud Console'dan alacağınız Client ID
-    CLIENT_ID: 'c82d44b1373944a79331dd3d99ba1ecb',
+    // config.js dosyasından otomatik olarak alınır
+    get CLIENT_ID() {
+        return window.CONFIG?.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com';
+    },
 
     // OAuth 2.0 ayarları
     SCOPES: 'profile email',
@@ -66,9 +69,14 @@ function initGoogleAuth() {
 function initializeGoogleSignIn() {
     try {
         // Client ID kontrolü
-        if (AUTH_CONFIG.CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com') {
-            console.warn('⚠️ Google Client ID yapılandırılmamış. Lütfen auth.js dosyasında CLIENT_ID değerini güncelleyin.');
-            showAuthError('Google girişi yapılandırılmamış');
+        const clientId = AUTH_CONFIG.CLIENT_ID;
+        if (!clientId ||
+            clientId === 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com' ||
+            !clientId.includes('.apps.googleusercontent.com')) {
+            console.warn('⚠️ Google Client ID yapılandırılmamış veya geçersiz.');
+            console.warn('📝 Lütfen config.js dosyasında GOOGLE_CLIENT_ID değerini güncelleyin.');
+            console.warn('🔗 Google Cloud Console: https://console.cloud.google.com/apis/credentials');
+            showAuthError('Google girişi yapılandırılmamış. Lütfen geçerli bir Client ID ekleyin.');
             return;
         }
 

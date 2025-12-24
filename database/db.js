@@ -90,26 +90,35 @@ const REDIS_KEYS = {
  */
 async function getLearnedBias(sessionId, date) {
     try {
-        // Try Redis first (fast cache)
-        const key = REDIS_KEYS.moodBias(sessionId, date);
-        const cached = await redis.get(key);
+        // Try Redis first (fast cache) - only if connected
+        if (redisConnected) {
+            const key = REDIS_KEYS.moodBias(sessionId, date);
+            const cached = await redis.get(key);
 
-        if (cached !== null) {
-            return parseInt(cached);
+            if (cached !== null) {
+                return parseInt(cached);
+            }
         }
 
-        // Fallback to PostgreSQL
-        const result = await db.query(
-            'SELECT get_learned_bias($1, $2) as bias',
-            [sessionId, date]
-        );
+        // Fallback to PostgreSQL (or return 0 if DB not available)
+        try {
+            const result = await db.query(
+                'SELECT get_learned_bias($1, $2) as bias',
+                [sessionId, date]
+            );
 
-        const bias = result.rows[0]?.bias || 0;
+            const bias = result.rows[0]?.bias || 0;
 
-        // Cache in Redis for 1 hour
-        await redis.setEx(key, 3600, bias.toString());
+            // Cache in Redis for 1 hour (if available)
+            if (redisConnected) {
+                await redis.setEx(key, 3600, bias.toString());
+            }
 
-        return bias;
+            return bias;
+        } catch (dbError) {
+            console.warn('⚠️  Database not available, using default bias');
+            return 0;
+        }
     } catch (error) {
         console.error('Get learned bias error:', error);
         return 0;
