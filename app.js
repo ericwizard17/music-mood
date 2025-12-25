@@ -36,7 +36,10 @@ const elements = {
     humidity: document.getElementById('humidity'),
     moodBadge: document.getElementById('moodBadge'),
     moodDescription: document.getElementById('moodDescription'),
-    playlistContainer: document.getElementById('playlistContainer')
+    playlistContainer: document.getElementById('playlistContainer'),
+    aiExplanationCard: document.getElementById('aiExplanationCard'),
+    aiExplanationText: document.getElementById('aiExplanationText'),
+    aiExplanationLoading: document.getElementById('aiExplanationLoading')
 };
 
 // ==========================================
@@ -287,6 +290,61 @@ function displayPlaylist(mood) {
 }
 
 /**
+ * AI destekli müzik açıklaması alır ve gösterir
+ * @param {string} city - Şehir adı
+ * @param {string} weather - Hava durumu
+ * @param {number} temperature - Sıcaklık
+ * @param {string} mood - Mood kategorisi
+ * @param {Array} songs - Şarkı listesi
+ */
+async function fetchAIExplanation(city, weather, temperature, mood, songs) {
+    try {
+        // AI kartını göster ve loading başlat
+        elements.aiExplanationCard.classList.remove('hidden');
+        elements.aiExplanationLoading.classList.remove('hidden');
+        elements.aiExplanationText.classList.add('hidden');
+        elements.aiExplanationText.textContent = '';
+
+        // Backend'e istek gönder
+        const response = await fetch('/api/ai-recommendations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                city,
+                weather,
+                temperature,
+                mood,
+                songs: songs.slice(0, 10) // İlk 10 şarkıyı gönder
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('AI açıklaması alınamadı');
+        }
+
+        const data = await response.json();
+
+        // Loading'i gizle ve açıklamayı göster
+        elements.aiExplanationLoading.classList.add('hidden');
+        elements.aiExplanationText.classList.remove('hidden');
+
+        // Açıklamayı animasyonlu şekilde göster
+        elements.aiExplanationText.textContent = data.explanation;
+        elements.aiExplanationText.style.animation = 'fadeInUp 0.6s ease-out';
+
+        console.log('✅ AI açıklaması alındı:', data.success ? 'OpenAI' : 'Fallback');
+
+    } catch (error) {
+        console.error('❌ AI açıklama hatası:', error);
+
+        // Hata durumunda kartı gizle
+        elements.aiExplanationCard.classList.add('hidden');
+    }
+}
+
+/**
  * Ana arama fonksiyonu
  * Hava durumunu çeker ve uygun playlist'i gösterir
  */
@@ -321,6 +379,15 @@ async function searchWeatherAndMusic() {
         displayWeatherInfo(weatherData);
         displayMoodInfo(mood);
         displayPlaylist(mood);
+
+        // AI açıklamasını al
+        await fetchAIExplanation(
+            weatherData.name,
+            weatherMain,
+            weatherData.main.temp,
+            mood,
+            PLAYLISTS[mood].songs
+        );
 
         // Loading'i gizle ve sonuçları göster
         hideLoading();

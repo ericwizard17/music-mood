@@ -26,6 +26,12 @@ const {
     getUserMoodStats
 } = require('./database/db');
 
+// AI Recommendations modülünü import et
+const {
+    generateMusicRecommendation,
+    generateSongInsights
+} = require('./aiRecommendations');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -316,12 +322,26 @@ function mapWeatherToAudio(weather, moodScore = null) {
  * Health check endpoint
  */
 app.get('/api/health', (req, res) => {
+    // Environment variable'lardan Spotify yapılandırmasını kontrol et
+    const spotifyConfigured = !!(
+        process.env.SPOTIFY_CLIENT_ID &&
+        process.env.SPOTIFY_CLIENT_SECRET &&
+        process.env.SPOTIFY_CLIENT_ID !== 'your_spotify_client_id_here' &&
+        process.env.SPOTIFY_CLIENT_SECRET !== 'your_spotify_client_secret_here'
+    );
+
     res.json({
         status: 'OK',
         timestamp: new Date().toISOString(),
         spotify: {
-            configured: SPOTIFY_CONFIG.CLIENT_ID !== 'YOUR_SPOTIFY_CLIENT_ID',
+            configured: spotifyConfigured,
             tokenValid: spotifyToken !== null && Date.now() < tokenExpiresAt
+        },
+        redis: {
+            connected: redis?.isOpen || false
+        },
+        openai: {
+            configured: !!process.env.OPENAI_API_KEY
         }
     });
 });
@@ -386,16 +406,40 @@ app.get("/api/recommendations", async (req, res) => {
         );
 
         // Şarkı bilgilerini formatla
-        const tracks = spotifyRes.data.tracks.map(track => ({
-            id: track.id,
-            title: track.name,
-            artist: track.artists.map(a => a.name).join(', '),
-            album: track.album.name,
-            albumArt: track.album.images[0]?.url,
-            previewUrl: track.preview_url,
-            spotifyUrl: track.external_urls.spotify,
-            duration: track.duration_ms,
-            popularity: track.popularity
+        const tracks = await Promise.all(spotifyRes.data.tracks.map(async (track) => {
+            // İlk sanatçının detaylarını al
+            let artistInfo = null;
+            if (track.artists[0]?.id) {
+                try {
+                    const artistRes = await axios.get(
+                        `${SPOTIFY_CONFIG.API_BASE_URL}/artists/${track.artists[0].id}`,
+                        {
+                            headers: { Authorization: `Bearer ${token}` }
+                        }
+                    );
+                    artistInfo = {
+                        followers: artistRes.data.followers.total,
+                        popularity: artistRes.data.popularity,
+                        genres: artistRes.data.genres
+                    };
+                } catch (artistErr) {
+                    console.warn(`Artist bilgisi alınamadı: ${track.artists[0].name}`);
+                }
+            }
+
+            return {
+                id: track.id,
+                title: track.name,
+                artist: track.artists.map(a => a.name).join(', '),
+                artistUrl: track.artists[0]?.external_urls?.spotify,
+                artistInfo: artistInfo, // Yeni: Artist bilgileri
+                album: track.album.name,
+                albumArt: track.album.images[0]?.url,
+                previewUrl: track.preview_url,
+                spotifyUrl: track.external_urls.spotify,
+                duration: track.duration_ms,
+                popularity: track.popularity
+            };
         }));
 
         res.json({
@@ -458,6 +502,7 @@ app.get("/api/search", async (req, res) => {
             id: track.id,
             title: track.name,
             artist: track.artists.map(a => a.name).join(', '),
+            artistUrl: track.artists[0]?.external_urls?.spotify,
             album: track.album.name,
             albumArt: track.album.images[0]?.url,
             previewUrl: track.preview_url,
@@ -531,6 +576,76 @@ app.get("/api/track/:id", async (req, res) => {
     }
 });
 
+/**
+ * AI-powered music recommendations endpoint
+ * POST /api/ai-recommendations
+ * Body: { city, weather, temperature, mood, songs }
+ */
+app.post("/api/ai-recommendations", async (req, res) => {
+    try {
+        const { city, weather, temperature, mood, songs } = req.body;
+
+        // Validasyon
+        if (!city || !weather || !temperature || !mood || !songs) {
+            return res.status(400).json({
+                error: 'Missing required parameters',
+                required: ['city', 'weather', 'temperature', 'mood', 'songs']
+            });
+        }
+
+        console.log(`🤖 AI Recommendation request for ${city} (${weather}, ${temperature}°C, ${mood})`);
+
+        // AI destekli öneri üret
+        const aiResponse = await generateMusicRecommendation({
+            city,
+            weather,
+            temperature,
+            mood,
+            songs
+        });
+
+        res.json(aiResponse);
+
+    } catch (err) {
+        console.error('❌ AI Recommendation error:', err.message);
+        res.status(500).json({
+            error: 'AI Recommendation error',
+            message: err.message
+        });
+    }
+});
+
+/**
+ * AI-powered song insights endpoint
+ * POST /api/ai-insights
+ * Body: { songs, mood }
+ */
+app.post("/api/ai-insights", async (req, res) => {
+    try {
+        const { songs, mood } = req.body;
+
+        if (!songs || !mood) {
+            return res.status(400).json({
+                error: 'Missing required parameters',
+                required: ['songs', 'mood']
+            });
+        }
+
+        console.log(`🤖 AI Insights request for ${mood} mood`);
+
+        const insights = await generateSongInsights(songs, mood);
+
+        res.json(insights);
+
+    } catch (err) {
+        console.error('❌ AI Insights error:', err.message);
+        res.status(500).json({
+            error: 'AI Insights error',
+            message: err.message
+        });
+    }
+});
+
 // ==========================================
 // STATIC FILES
 // ==========================================
@@ -568,6 +683,8 @@ app.listen(PORT, () => {
 ║  • GET  /api/recommendations?weather=  ║
 ║  • GET  /api/search?q=                 ║
 ║  • GET  /api/track/:id                 ║
+║  • POST /api/ai-recommendations        ║
+║  • POST /api/ai-insights               ║
 ╚════════════════════════════════════════╝
     `);
 

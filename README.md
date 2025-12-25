@@ -2,11 +2,14 @@
 
 Hava durumuna göre size özel **Spotify** müzik önerileri sunan, **AI-powered mood learning** sistemi ile donatılmış modern web uygulaması.
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+🌐 **Live Demo**: [https://service-name-396747194422.europe-west1.run.app](https://service-name-396747194422.europe-west1.run.app)
+
+![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
 ![Redis](https://img.shields.io/badge/Redis-7-red.svg)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--3.5-purple.svg)
 
 ## ✨ Özellikler
 
@@ -37,6 +40,14 @@ Hava durumuna göre size özel **Spotify** müzik önerileri sunan, **AI-powered
 - ✅ **Profil**: Avatar ve isim gösterimi
 - ✅ **Session**: LocalStorage + Backend session
 
+### 🤖 AI Müzik Danışmanı (YENİ!)
+- ✅ **OpenAI GPT-3.5**: Akıllı müzik açıklamaları
+- ✅ **Kişiselleştirilmiş Öneriler**: Her arama için benzersiz açıklamalar
+- ✅ **Neden Bu Şarkılar?**: AI tarafından açıklanan seçim nedenleri
+- ✅ **Aktivite Önerileri**: Müzikle yapılabilecek aktiviteler
+- ✅ **Fallback Sistemi**: API erişilemezse yerleşik açıklamalar
+- ✅ **Türkçe Destek**: Samimi ve ilham verici dil
+
 ### 🎨 Modern Tasarım
 - ✅ **Dark Theme**: Göz yormayan karanlık tema
 - ✅ **Glassmorphism**: Modern UI efektleri
@@ -63,6 +74,14 @@ copy .env.example .env  # Windows
 
 ### 2️⃣ API Credentials
 
+#### OpenAI API (YENİ! - Detaylı: [AI_SETUP.md](AI_SETUP.md))
+1. [OpenAI Platform](https://platform.openai.com/api-keys)
+2. "Create new secret key" → API key'i kopyalayın
+3. `.env` dosyasına ekleyin:
+```env
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
 #### Spotify API (Detaylı: [SPOTIFY_SETUP.md](SPOTIFY_SETUP.md))
 1. [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. "Create an App" → Credentials'ları kopyalayın
@@ -75,9 +94,9 @@ SPOTIFY_CLIENT_SECRET=your_client_secret_here
 #### OpenWeatherMap API (Detaylı: [API_SETUP.md](API_SETUP.md))
 1. [OpenWeatherMap](https://openweathermap.org/api)
 2. Ücretsiz API key alın
-3. `app.js` dosyasında `CONFIG.API_KEY` güncelleyin
+3. `config.js` dosyasında `OPENWEATHER_API_KEY` güncelleyin
 
-#### Google OAuth (Detaylı: [GOOGLE_AUTH_SETUP.md](GOOGLE_AUTH_SETUP.md))
+#### Google OAuth (Opsiyonel - Detaylı: [GOOGLE_AUTH_CHECK.md](GOOGLE_AUTH_CHECK.md))
 1. [Google Cloud Console](https://console.cloud.google.com/)
 2. OAuth 2.0 Client ID oluşturun
 3. `config.js` dosyasında `GOOGLE_CLIENT_ID` güncelleyin
@@ -130,6 +149,14 @@ GET /api/search?q=Coldplay
 
 # Şarkı detayları
 GET /api/track/:trackId
+
+# AI destekli müzik açıklaması (YENİ!)
+POST /api/ai-recommendations
+Body: { city, weather, temperature, mood, songs }
+
+# AI şarkı içgörüleri (YENİ!)
+POST /api/ai-insights
+Body: { songs, mood }
 ```
 
 ## 🎭 Hava Durumu → Mood Mapping
@@ -230,11 +257,12 @@ npm start
 - Client ID'nin doğru formatta olduğundan emin olun (`.apps.googleusercontent.com`)
 - Authorized JavaScript origins'i kontrol edin
 - Tarayıcı console'unda hataları kontrol edin
-- Detaylı kurulum için: [GOOGLE_AUTH_SETUP.md](GOOGLE_AUTH_SETUP.md)
+- Detaylı kurulum için: [GOOGLE_AUTH_CHECK.md](GOOGLE_AUTH_CHECK.md)
 
 ## 📚 Dokümantasyon
 
-- **[GOOGLE_AUTH_SETUP.md](GOOGLE_AUTH_SETUP.md)** - Detaylı Google OAuth kurulum rehberi
+- **[AI_SETUP.md](AI_SETUP.md)** - AI Müzik Danışmanı kurulum ve kullanım rehberi (YENİ!)
+- **[GOOGLE_AUTH_CHECK.md](GOOGLE_AUTH_CHECK.md)** - Google OAuth kontrol listesi ve troubleshooting
 - **[SPOTIFY_SETUP.md](SPOTIFY_SETUP.md)** - Detaylı Spotify kurulum rehberi
 - **[API_SETUP.md](API_SETUP.md)** - OpenWeatherMap kurulum rehberi
 - **[README.md](README.md)** - Genel bakış (bu dosya)

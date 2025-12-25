@@ -70,22 +70,40 @@ function initializeGoogleSignIn() {
     try {
         // Client ID kontrolü
         const clientId = AUTH_CONFIG.CLIENT_ID;
+
+        // Debug bilgisi
+        console.log('🔑 Google Client ID kontrol ediliyor...');
+        console.log('📝 Client ID:', clientId ? clientId.substring(0, 20) + '...' : 'YOK');
+
         if (!clientId ||
             clientId === 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com' ||
             !clientId.includes('.apps.googleusercontent.com')) {
             console.warn('⚠️ Google Client ID yapılandırılmamış veya geçersiz.');
             console.warn('📝 Lütfen config.js dosyasında GOOGLE_CLIENT_ID değerini güncelleyin.');
             console.warn('🔗 Google Cloud Console: https://console.cloud.google.com/apis/credentials');
-            showAuthError('Google girişi yapılandırılmamış. Lütfen geçerli bir Client ID ekleyin.');
+            console.info('💡 İpucu: Client ID formatı: "xxxxx.apps.googleusercontent.com" olmalıdır');
+
+            // Login button'ı gizle ve bilgilendirme mesajı göster
+            if (authElements.loginBtn) {
+                authElements.loginBtn.innerHTML = `
+                    <div style="padding: 12px 24px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 24px; color: #ef4444; font-size: 14px;">
+                        <strong>⚠️ Google girişi yapılandırılmamış</strong><br>
+                        <small>Lütfen config.js dosyasında GOOGLE_CLIENT_ID ekleyin</small>
+                    </div>
+                `;
+            }
             return;
         }
 
+        console.log('✅ Client ID geçerli, Google Sign-In başlatılıyor...');
+
         // Google Sign-In button'ı oluştur
         google.accounts.id.initialize({
-            client_id: AUTH_CONFIG.CLIENT_ID,
+            client_id: clientId,
             callback: handleCredentialResponse,
             auto_select: false,
-            cancel_on_tap_outside: true
+            cancel_on_tap_outside: true,
+            itp_support: true // Safari için
         });
 
         // Login button'ı render et
@@ -96,7 +114,8 @@ function initializeGoogleSignIn() {
                 size: 'large',
                 text: 'signin_with',
                 shape: 'pill',
-                logo_alignment: 'left'
+                logo_alignment: 'left',
+                width: 250
             }
         );
 
@@ -110,8 +129,19 @@ function initializeGoogleSignIn() {
         loadUserFromStorage();
 
     } catch (error) {
-        console.error('Google Auth başlatma hatası:', error);
-        showAuthError('Giriş sistemi yüklenemedi');
+        console.error('❌ Google Auth başlatma hatası:', error);
+        console.error('📋 Hata detayları:', error.message);
+        showAuthError('Giriş sistemi yüklenemedi. Lütfen sayfayı yenileyin.');
+
+        // Hata durumunda bilgilendirici mesaj göster
+        if (authElements.loginBtn) {
+            authElements.loginBtn.innerHTML = `
+                <div style="padding: 12px 24px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 24px; color: #ef4444; font-size: 14px;">
+                    <strong>❌ Giriş sistemi yüklenemedi</strong><br>
+                    <small>Lütfen sayfayı yenileyin</small>
+                </div>
+            `;
+        }
     }
 }
 

@@ -164,6 +164,26 @@
                 <p class="mood-description" id="moodDescription"></p>
             </div>
 
+            <!-- AI Explanation Section -->
+            <div id="aiExplanationCard" class="ai-explanation-card hidden">
+                <div class="ai-header">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <h3>🤖 AI Müzik Danışmanı</h3>
+                </div>
+                <div id="aiExplanationLoading" class="ai-loading">
+                    <div class="ai-spinner"></div>
+                    <p>AI önerilerinizi hazırlıyor...</p>
+                </div>
+                <p class="ai-explanation-text" id="aiExplanationText"></p>
+            </div>
+
             <!-- Playlist Section -->
             <div class="playlist-section">
                 <h3 class="playlist-title">
@@ -190,10 +210,12 @@
     <script src="config.js"></script>
 
     <!-- Application Scripts -->
-    <script src="playlists.js"></script>`r`n    <script src="shuffle.js"></script>
+    <script src="playlists.js"></script>
+
     <script src="auth.js"></script>
-    <script src="app.js"></script>
     <script src="spotify.js"></script>
+    <script src="app.js"></script>
+    <script src="shuffle.js"></script>
 </body>
 
 </html>

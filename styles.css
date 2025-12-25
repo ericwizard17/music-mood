@@ -804,6 +804,118 @@ body::before {
     line-height: 1.8;
 }
 
+/* AI Explanation Card */
+.ai-explanation-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: var(--shadow-md), 0 0 30px rgba(99, 102, 241, 0.1);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-explanation-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+    animation: aiGlow 4s ease-in-out infinite;
+}
+
+@keyframes aiGlow {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-10%, -10%) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+.ai-explanation-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.ai-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    position: relative;
+    z-index: 1;
+}
+
+.ai-header svg {
+    width: 24px;
+    height: 24px;
+    color: var(--color-accent-primary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.ai-header h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ai-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg) 0;
+    position: relative;
+    z-index: 1;
+}
+
+.ai-loading.hidden {
+    display: none;
+}
+
+.ai-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(99, 102, 241, 0.2);
+    border-top-color: var(--color-accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.ai-loading p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+}
+
+.ai-explanation-text {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    line-height: 1.8;
+    position: relative;
+    z-index: 1;
+    white-space: pre-line;
+}
+
+.ai-explanation-text.hidden {
+    display: none;
+}
+
 /* Playlist Section */
 .playlist-section {
     margin-bottom: var(--spacing-xl);
@@ -1153,4 +1265,97 @@ body::before {
     #cityInput {
         font-size: var(--font-size-sm);
     }
+}
+
+/* ==========================================
+   ARTIST PROFILE LINK
+   ========================================== */
+
+.song-artist {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.artist-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    background: rgba(30, 215, 96, 0.1);
+    border: 1px solid rgba(30, 215, 96, 0.3);
+    border-radius: 50%;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    color: #1DB954;
+}
+
+.artist-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+.artist-link:hover {
+    background: rgba(30, 215, 96, 0.2);
+    border-color: #1DB954;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(30, 215, 96, 0.3);
+}
+
+.artist-link:active {
+    transform: scale(0.95);
+}
+
+/* Tooltip efekti */
+.artist-link::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+}
+
+.artist-link:hover::after {
+    opacity: 1;
+}
+
+/* Artist Followers Badge */
+.artist-followers {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    color: var(--color-accent-primary);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: help;
+}
+
+.artist-followers svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-accent-primary);
+}
+
+.artist-followers:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--color-accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
