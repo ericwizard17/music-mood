@@ -14,7 +14,7 @@ const API_BASE = window.ENV?.API_URL ||
 // Google OAuth Client ID
 // Get your Client ID from: https://console.cloud.google.com/apis/credentials
 const GOOGLE_CLIENT_ID = window.ENV?.GOOGLE_CLIENT_ID ||
-    'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com';
+    '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';
 
 // OpenWeatherMap API Key
 // Get your FREE API key from: https://openweathermap.org/api

@@ -8,11 +8,9 @@
 // CONFIGURATION
 // ==========================================
 
-// API Base URL (config.js'den alınır)
-const API_BASE = window.CONFIG?.API_BASE || 'http://localhost:3000';
-
+// Spotify API configuration (uses global CONFIG from config.js)
 const SPOTIFY_API = {
-    BASE_URL: `${API_BASE}/api`,
+    BASE_URL: `${window.CONFIG?.API_BASE || 'http://localhost:3000'}/api`,
     ENDPOINTS: {
         RECOMMENDATIONS: '/recommendations',
         SEARCH: '/search',

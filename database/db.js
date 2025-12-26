@@ -30,12 +30,16 @@ db.on('error', (err) => {
 // REDIS CONNECTION
 // ==========================================
 
+// Track Redis connection status
+let redisConnected = false;
+
 const redis = createClient({
     url: process.env.REDIS_URL || 'redis://localhost:6379',
     socket: {
         reconnectStrategy: (retries) => {
             if (retries > 10) {
                 console.error('❌ Redis: Too many retries, giving up');
+                redisConnected = false;
                 return new Error('Too many retries');
             }
             return Math.min(retries * 100, 3000);
@@ -45,18 +49,22 @@ const redis = createClient({
 
 redis.on('connect', () => {
     console.log('✅ Redis connected');
+    redisConnected = true;
 });
 
 redis.on('error', (err) => {
     console.error('❌ Redis error:', err);
+    redisConnected = false;
 });
 
 // Connect to Redis
 (async () => {
     try {
         await redis.connect();
+        redisConnected = true;
     } catch (error) {
         console.error('❌ Redis connection failed:', error.message);
+        redisConnected = false;
     }
 })();
 
